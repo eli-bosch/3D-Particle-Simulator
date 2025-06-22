@@ -6,8 +6,12 @@
 const char* vertexShaderSource = R"( 
 #version 460 core
 layout (location = 0) in vec3 aPos;
+uniform float uTime;
+
 void main() {
-    gl_Position = vec4(aPos, 1.0);
+    vec3 pos = aPos;
+    pos.x += cos(uTime + aPos.y * 10.0) * 0.1;
+    gl_Position = vec4(pos, 1.0); 
 }
 )"; //GLSL defines single vec3 @ location 0, glPosition tells gpu where to place vertex
 
@@ -46,6 +50,8 @@ int main() {
     settings.minorVersion = 6; //request OpenGL vx.6
     settings.attributeFlags = sf::ContextSettings::Core; //Modern OpenGL
 
+    sf::Clock clock;
+
     // Create window with OpenGL context
     sf::Window window(sf::VideoMode(800, 600), "OpenGL Triangle (SFML + GLAD)", sf::Style::Default, settings);
     window.setActive(true);
@@ -58,9 +64,9 @@ int main() {
 
     // Triangle vertices
     float vertices[] = {
-        -1.f, -1.f, 0.0f,
-         1.f, -1.f, 0.0f,
-         1.f,  1.f, 0.0f
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f,  0.5f, 0.0f
     };
 
     // Create VAO(Stores how vertex data is laid out) and 
@@ -103,8 +109,13 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Draw triangle
+        float timeValue = clock.getElapsedTime().asSeconds();
+        GLuint timeLoc = glGetUniformLocation(shaderProgram, "uTime");
         glUseProgram(shaderProgram);
+        glUniform1f(timeLoc, timeValue);
+
+
+        // Draw triangle
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
