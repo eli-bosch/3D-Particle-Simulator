@@ -2,14 +2,15 @@
 SRC_DIR := src
 BIN_DIR := bin
 DLL_DIR := dll
+INCLUDE_DIR := include
 
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -I"C:/msys64/mingw64/include"
-LDFLAGS := -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system
+CXXFLAGS := -std=c++17 -Wall -I"$(INCLUDE_DIR)"
+LDFLAGS := -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32
 
 # Source and target
-SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
+SOURCES := $(wildcard $(SRC_DIR)/*.cpp) $(SRC_DIR)/gl.c
 TARGET := $(BIN_DIR)/main.exe
 
 .PHONY: all run clean
@@ -19,7 +20,7 @@ all: $(TARGET)
 $(TARGET): $(SOURCES)
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 	@echo Copying DLLs...
-	@xcopy /Y "$(DLL_DIR)\*.dll" "$(BIN_DIR)\"
+	@xcopy /Y "$(DLL_DIR)\*.dll" "$(BIN_DIR)\" >nul 2>&1
 
 run: all
 	./$(TARGET)
