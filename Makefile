@@ -2,11 +2,11 @@
 SRC_DIR := src
 BIN_DIR := bin
 DLL_DIR := dll
-INCLUDE_DIR := include
+INCLUDE_DIRS := include glm
 
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -I"$(INCLUDE_DIR)"
+CXXFLAGS := -std=c++17 -Wall $(foreach dir,$(INCLUDE_DIRS),-I$(dir))
 LDFLAGS := -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32
 
 # Source and target
@@ -23,7 +23,8 @@ $(TARGET): $(SOURCES)
 	@xcopy /Y "$(DLL_DIR)\*.dll" "$(BIN_DIR)\" >nul 2>&1
 
 run: all
+	$(CXX) -v $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 	./$(TARGET)
 
 clean:
-	del /Q $(BIN_DIR)\*.exe 2>nul || rm -f $(BIN_DIR)/*.exe
+	-del /Q $(BIN_DIR)\*.exe 2>nul || rm -f $(BIN_DIR)/*.exe
