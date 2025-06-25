@@ -79,6 +79,7 @@ int main() {
     settings.minorVersion = 6;
     settings.attributeFlags = sf::ContextSettings::Core;
 
+    //Rendering window
     sf::Window window(sf::VideoMode(800, 600), "3D Particle Simulator",
                       sf::Style::Default, settings);
     window.setVerticalSyncEnabled(true);
@@ -107,63 +108,36 @@ int main() {
     GLuint shaderProgram = createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
 
     // Vertex data for a square (two triangles)
-float cubeVertices[] = {
-    // front face
-    -0.5f, -0.5f,  0.5f,  // bottom-left
-     0.5f, -0.5f,  0.5f,  // bottom-right
-     0.5f,  0.5f,  0.5f,  // top-right
-     0.5f,  0.5f,  0.5f,  // top-right
-    -0.5f,  0.5f,  0.5f,  // top-left
-    -0.5f, -0.5f,  0.5f,  // bottom-left
+    float edgeVertices[] = {
+    // Bottom square
+    -0.5f, -0.5f, -0.5f,   0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,   0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,  -0.5f, -0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,  -0.5f, -0.5f, -0.5f,
 
-    // back face
-    -0.5f, -0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
+    // Top square
+    -0.5f,  0.5f, -0.5f,   0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,   0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,  -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,  -0.5f,  0.5f, -0.5f,
 
-    // left face
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
+    // Vertical lines
+    -0.5f, -0.5f, -0.5f,  -0.5f,  0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,   0.5f,  0.5f, -0.5f,
+     0.5f, -0.5f,  0.5f,   0.5f,  0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,  -0.5f,  0.5f,  0.5f
+    };
 
-    // right face
-     0.5f,  0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f,  0.5f,
 
-    // top face
-    -0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
 
-    // bottom face
-    -0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f, -0.5f
-};
 
-GLuint VBO, VAO;
-glGenVertexArrays(1, &VAO);
-glGenBuffers(1, &VBO);
+GLuint edgeVBO, edgeVAO;
+glGenVertexArrays(1, &edgeVAO);
+glGenBuffers(1, &edgeVBO);
 
-glBindVertexArray(VAO);
-glBindBuffer(GL_ARRAY_BUFFER, VBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+glBindVertexArray(edgeVAO);
+glBindBuffer(GL_ARRAY_BUFFER, edgeVBO);
+glBufferData(GL_ARRAY_BUFFER, sizeof(edgeVertices), edgeVertices, GL_STATIC_DRAW);
 
 glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 glEnableVertexAttribArray(0);
@@ -183,7 +157,7 @@ glBindVertexArray(0);
         }
 
         // Clear screen
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);  // dark teal instead of black
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Use shader and pass camera matrices
@@ -200,8 +174,8 @@ glBindVertexArray(0);
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         // TODO: Draw your particle system here
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(edgeVAO);
+        glDrawArrays(GL_LINES, 0, 24);
         glBindVertexArray(0);
 
 
