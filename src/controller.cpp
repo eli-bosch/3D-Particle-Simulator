@@ -3,6 +3,7 @@
 Controller::Controller(View& cameraRef) : camera(cameraRef)
 {
     this->rotationSpeed = 5.f;
+    this->magnificationSpeed = 1.f;
 }
 
 void Controller::handleEvent(const sf::Event& event) {
@@ -23,6 +24,12 @@ void Controller::handleEvent(const sf::Event& event) {
             case sf::Keyboard::Down:
             case sf::Keyboard::S:
                 camera.rotateDown(rotationSpeed);
+                break;
+            case sf::Keyboard::Hyphen:
+                camera.zoomOut(magnificationSpeed);
+                break;
+            case sf::Keyboard::Equal:
+                camera.zoomIn(magnificationSpeed);
                 break;
             default:
                 break;

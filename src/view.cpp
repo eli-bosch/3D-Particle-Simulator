@@ -6,7 +6,7 @@
 View::View() {
     this->yaw = glm::radians(0.f);
     this->pitch = glm::radians(0.f);
-    this->radius = 10.f;
+    this->radius = 8.f;
     this->center = glm::vec3(0.f);
 }
 
@@ -21,12 +21,22 @@ void View::rotateRight(float ammount) {
 void View::rotateUp(float ammount) {
     this->pitch += glm::radians(ammount);
     //Clamp used to avoid gimbal lock
-    pitch = std::clamp(pitch, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
+    this->pitch = std::clamp(pitch, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
 }
 
 void View::rotateDown(float ammount) {
     this->pitch -= glm::radians(ammount);
-    pitch = std::clamp(pitch, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
+    this->pitch = std::clamp(pitch, -glm::half_pi<float>() + 0.01f, glm::half_pi<float>() - 0.01f);
+}
+
+void View::zoomIn(float ammount) {
+    this->radius -= ammount;
+    if(this->radius < 0.5) this->radius = 0.5;
+}
+
+void View::zoomOut(float ammount) {
+    this->radius += ammount;
+    if(this->radius > 15.f) this->radius = 15.f;
 }
 
 glm::vec3 View::getCameraPosition() const {

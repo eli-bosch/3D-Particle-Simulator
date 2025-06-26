@@ -9,6 +9,8 @@ class View {
         float yaw; //Horizontal angle
         float pitch; //Verticle angle
         float radius; 
+        float magnification;
+
         glm::vec3 center;
 
     public:
@@ -18,6 +20,9 @@ class View {
         void rotateRight(float ammount);
         void rotateUp(float ammount);
         void rotateDown(float ammount);
+
+        void zoomIn(float ammount);
+        void zoomOut(float ammount);
 
         glm::mat4 getViewMatrix() const;
         glm::vec3 getCameraPosition() const;

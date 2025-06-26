@@ -8,6 +8,7 @@ class Controller {
     private:
         View& camera;
         float rotationSpeed;
+        float magnificationSpeed;
 
     public:
         Controller(View& cameraRef);
