@@ -10,6 +10,7 @@
 
 #include "view.h"
 #include "controller.h"
+#include "particle_system.h"
 
 // ---- Utility functions for shader loading ----
 
@@ -71,6 +72,8 @@ GLuint createShaderProgram(const std::string& vertexPath, const std::string& fra
 
 int main() {
     // Set up SFML OpenGL context (4.6 core)
+    sf::Clock clock;
+
     sf::ContextSettings settings;
     settings.depthBits = 24;
     settings.stencilBits = 8;
@@ -105,7 +108,8 @@ int main() {
     Controller controller(camera);
 
     // Compile shaders
-    GLuint shaderProgram = createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
+    GLuint squareShader = createShaderProgram("shaders/box.vert", "shaders/box.frag");
+    GLuint particleShader = createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
 
     // Vertex data for a square (two triangles)
     float edgeVertices[] = {
@@ -127,27 +131,30 @@ int main() {
      0.5f, -0.5f,  0.5f,   0.5f,  0.5f,  0.5f,
     -0.5f, -0.5f,  0.5f,  -0.5f,  0.5f,  0.5f
     };
+    
+    GLuint edgeVBO, edgeVAO;
+    glGenVertexArrays(1, &edgeVAO);
+    glGenBuffers(1, &edgeVBO);
 
+    glBindVertexArray(edgeVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, edgeVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(edgeVertices), edgeVertices, GL_STATIC_DRAW);
 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
-GLuint edgeVBO, edgeVAO;
-glGenVertexArrays(1, &edgeVAO);
-glGenBuffers(1, &edgeVBO);
-
-glBindVertexArray(edgeVAO);
-glBindBuffer(GL_ARRAY_BUFFER, edgeVBO);
-glBufferData(GL_ARRAY_BUFFER, sizeof(edgeVertices), edgeVertices, GL_STATIC_DRAW);
-
-glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-glEnableVertexAttribArray(0);
-
-glBindBuffer(GL_ARRAY_BUFFER, 0);
-glBindVertexArray(0);
+    Particle_System particles;
+    particles.initialize(100);
 
 
     // Setup render loop
     while (window.isOpen()) {
+        float dt = clock.restart().asSeconds();
+        particles.update(dt);
+
         // Handle input
         sf::Event event;
         while (window.pollEvent(event)) {
@@ -161,19 +168,24 @@ glBindVertexArray(0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Use shader and pass camera matrices
-        glUseProgram(shaderProgram);
+        glUseProgram(squareShader);
 
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-        GLuint viewLoc = glGetUniformLocation(shaderProgram, "view");
-        GLuint projLoc = glGetUniformLocation(shaderProgram, "projection");
+        GLuint viewLoc = glGetUniformLocation(squareShader, "view");
+        GLuint projLoc = glGetUniformLocation(squareShader, "projection");
+
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         // TODO: Draw your particle system here
+
+        particles.draw(particleShader);
+
+
         glBindVertexArray(edgeVAO);
         glDrawArrays(GL_LINES, 0, 24);
         glBindVertexArray(0);
