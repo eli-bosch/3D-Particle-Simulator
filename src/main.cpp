@@ -1,6 +1,8 @@
 #include <SFML/Window.hpp>
 
+#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <glad/gl.h>
 
@@ -12,7 +14,8 @@
 #include "controller.h"
 #include "particle_system.h"
 
-// ---- Utility functions for shader loading ----
+//Utility Functions
+//TODO: Create new util folder
 
 std::string loadShaderSource(const std::string& path) {
     std::ifstream file(path);
@@ -68,8 +71,6 @@ GLuint createShaderProgram(const std::string& vertexPath, const std::string& fra
     return program;
 }
 
-// ---- Main entry point ----
-
 int main() {
     // Set up SFML OpenGL context (4.6 core)
     sf::Clock clock;
@@ -92,26 +93,33 @@ int main() {
         std::cerr << "Failed to initialize GLAD\n";
         return -1;
     }
+    
 
     int width = window.getSize().x;
     int height = window.getSize().y;
     glViewport(0, 0, width, height);
-
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glPointSize(16.0f); 
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
     // Set up camera and controller
     View camera;
     Controller controller(camera);
 
-    // Compile shaders
-    GLuint squareShader = createShaderProgram("shaders/box.vert", "shaders/box.frag");
+    // Create shaders
+    GLuint frameShader = createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
     GLuint particleShader = createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
 
-    // Vertex data for a square (two triangles)
+    // Vertex data for a cube
     float edgeVertices[] = {
     // Bottom square
     -0.5f, -0.5f, -0.5f,   0.5f, -0.5f, -0.5f,
@@ -143,6 +151,7 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    //TODO: Check why duplicated (If carry over from tutorial or error)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
@@ -167,31 +176,41 @@ int main() {
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Use shader and pass camera matrices
-        glUseProgram(squareShader);
-
+        // Camera instance
         glm::mat4 view = camera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(60.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(60.0f), 800.f / 600.f, 0.1f, 100.0f);
 
-        GLuint viewLoc = glGetUniformLocation(squareShader, "view");
-        GLuint projLoc = glGetUniformLocation(squareShader, "projection");
+        // Draws Frame
+        glUseProgram(frameShader);
 
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        GLuint frameViewLoc = glGetUniformLocation(frameShader, "view");
+        GLuint frameProjLoc = glGetUniformLocation(frameShader, "projection");
+        GLuint frameModelLoc = glGetUniformLocation(frameShader, "model");
+
+        glm::mat4 frameModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); 
+
+        glUniformMatrix4fv(frameViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(frameProjLoc, 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(frameModelLoc, 1, GL_FALSE, glm::value_ptr(frameModel));
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        // TODO: Draw your particle system here
-
-        particles.draw(particleShader);
-
-
         glBindVertexArray(edgeVAO);
         glDrawArrays(GL_LINES, 0, 24);
         glBindVertexArray(0);
 
+        //Draws Particles
+        glUseProgram(particleShader);
 
-        // Display the frame
+        GLuint particleViewLoc = glGetUniformLocation(particleShader, "view");
+        GLuint particleProjLoc = glGetUniformLocation(particleShader, "projection");
+
+        glUniformMatrix4fv(particleViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(particleProjLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to fill if needed
+        particles.draw(particleShader);
+
+        // Display
         window.display();
     }
 
