@@ -201,9 +201,14 @@ int main() {
         //Draws Particles
         glUseProgram(particleShader);
 
+        float fov = glm::radians(60.0f); // match your projection matrix
+        int height = window.getSize().y;
+
         GLuint particleViewLoc = glGetUniformLocation(particleShader, "view");
         GLuint particleProjLoc = glGetUniformLocation(particleShader, "projection");
 
+        glUniform1f(glGetUniformLocation(particleShader, "fov"), fov);
+        glUniform1f(glGetUniformLocation(particleShader, "viewportHeight"), (float)height);
         glUniformMatrix4fv(particleViewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(particleProjLoc, 1, GL_FALSE, glm::value_ptr(projection));
 

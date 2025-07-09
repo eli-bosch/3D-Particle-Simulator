@@ -70,7 +70,6 @@ void Particle_System::update(float dt) {
 void Particle_System::draw(GLuint shaderprogram) {
     glUseProgram(shaderprogram);
     glBindVertexArray(particleVAO);
-    glPointSize(5.f);
 
     glDrawArrays(GL_POINTS, 0, particles.size());
 
