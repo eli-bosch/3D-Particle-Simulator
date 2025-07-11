@@ -13,63 +13,28 @@
 #include "view.h"
 #include "controller.h"
 #include "particle_system.h"
+#include "utils.h"
 
-//Utility Functions
-//TODO: Create new util folder
+// Vertex data for a cube
+const float edgeVertices[] = {
+    // Bottom square
+    -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f,
+    0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f,
+    0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,
+    -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, -0.5f,
 
-std::string loadShaderSource(const std::string& path) {
-    std::ifstream file(path);
-    if (!file) {
-        std::cerr << "Failed to open " << path << std::endl;
-        exit(1);
-    }
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
-}
+    // Top square
+    -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
+    0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f,
+    0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+    -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, -0.5f,
 
-GLuint compileShader(GLenum type, const std::string& source) {
-    GLuint shader = glCreateShader(type);
-    const char* src = source.c_str();
-    glShaderSource(shader, 1, &src, nullptr);
-    glCompileShader(shader);
-
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        char log[512];
-        glGetShaderInfoLog(shader, 512, nullptr, log);
-        std::cerr << "Shader compilation failed:\n" << log << std::endl;
-    }
-
-    return shader;
-}
-
-GLuint createShaderProgram(const std::string& vertexPath, const std::string& fragmentPath) {
-    std::string vertexCode = loadShaderSource(vertexPath);
-    std::string fragmentCode = loadShaderSource(fragmentPath);
-
-    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexCode);
-    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentCode);
-
-    GLuint program = glCreateProgram();
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-    glLinkProgram(program);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success) {
-        char log[512];
-        glGetProgramInfoLog(program, 512, nullptr, log);
-        std::cerr << "Shader linking failed:\n" << log << std::endl;
-    }
-
-    return program;
-}
+    // Vertical lines
+    -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
+    0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
+    0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
+    -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f
+};
 
 int main() {
     // Set up SFML OpenGL context (4.6 core)
@@ -99,47 +64,28 @@ int main() {
     int height = window.getSize().y;
     glViewport(0, 0, width, height);
 
-    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl; //OpenGL version confirmation
 
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(16.0f); 
+    glPointSize(8.0f); 
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-    // Set up camera and controller
+    // Set up util, camera and controller
+    Utils util;
     View camera;
     Controller controller(camera);
 
     // Create shaders
-    GLuint frameShader = createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
-    GLuint particleShader = createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
+    GLuint frameShader = util.createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
+    GLuint particleShader = util.createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
 
-    // Vertex data for a cube
-    float edgeVertices[] = {
-    // Bottom square
-    -0.5f, -0.5f, -0.5f,   0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,   0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,  -0.5f, -0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,  -0.5f, -0.5f, -0.5f,
-
-    // Top square
-    -0.5f,  0.5f, -0.5f,   0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,   0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,  -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,  -0.5f,  0.5f, -0.5f,
-
-    // Vertical lines
-    -0.5f, -0.5f, -0.5f,  -0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,   0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f,  0.5f,   0.5f,  0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,  -0.5f,  0.5f,  0.5f
-    };
-    
+    //Set up GPU storage for cube edges;
     GLuint edgeVBO, edgeVAO;
     glGenVertexArrays(1, &edgeVAO);
     glGenBuffers(1, &edgeVBO);
@@ -155,9 +101,9 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    //Initilizes particles
     Particle_System particles;
     particles.initialize(100);
-
 
     // Setup render loop
     while (window.isOpen()) {
@@ -180,9 +126,10 @@ int main() {
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(60.0f), 800.f / 600.f, 0.1f, 100.0f);
 
-        // Draws Frame
+        // Draws Cube
         glUseProgram(frameShader);
 
+        //TODO: Cache these look ups 
         GLuint frameViewLoc = glGetUniformLocation(frameShader, "view");
         GLuint frameProjLoc = glGetUniformLocation(frameShader, "projection");
         GLuint frameModelLoc = glGetUniformLocation(frameShader, "model");
@@ -204,6 +151,7 @@ int main() {
         float fov = glm::radians(60.0f); // match your projection matrix
         int height = window.getSize().y;
 
+        //TODO: Chache these look ups
         GLuint particleViewLoc = glGetUniformLocation(particleShader, "view");
         GLuint particleProjLoc = glGetUniformLocation(particleShader, "projection");
 

@@ -67,7 +67,7 @@ void Particle_System::update(float dt) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * sizeof(glm::vec3), positions.data());
 }
 
-void Particle_System::draw(GLuint shaderprogram) {
+void Particle_System::draw(GLuint shaderprogram) { //Batch draw particle vertex array
     glUseProgram(shaderprogram);
     glBindVertexArray(particleVAO);
 
