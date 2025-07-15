@@ -10,11 +10,11 @@
 #include <fstream>
 #include <sstream>
 
-#include "view.h"
-#include "controller.h"
+#include "view.hpp"
+#include "controller.hpp"
 #include "particle_system.h"
-#include "boundary.h"
-#include "utils.h"
+#include "boundary.hpp"
+#include "utils.hpp"
 
 
 int main() {

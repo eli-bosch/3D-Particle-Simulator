@@ -1,5 +1,5 @@
-#ifndef BOUNDARY_H
-#define BOUNDARY_H
+#ifndef BOUNDARY_HPP
+#define BOUNDARY_HPP
 
 #include <glad/gl.h>
 #include <array>

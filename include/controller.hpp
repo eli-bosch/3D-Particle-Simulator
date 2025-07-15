@@ -1,7 +1,7 @@
-#ifndef CONTROLLER_H
-#define CONTROLLER_H
+#ifndef CONTROLLER_HPP
+#define CONTROLLER_HPP
 
-#include "view.h"
+#include "view.hpp"
 #include <SFML/Window.hpp>
 
 class Controller {

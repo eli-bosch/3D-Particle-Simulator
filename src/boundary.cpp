@@ -1,4 +1,4 @@
-#include "boundary.h"
+#include "boundary.hpp"
 
 Boundary::Boundary() : edgeVertices{{
     -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f,

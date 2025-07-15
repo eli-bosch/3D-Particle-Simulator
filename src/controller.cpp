@@ -1,4 +1,4 @@
-#include "controller.h"
+#include "controller.hpp"
 
 Controller::Controller(View& cameraRef) : camera(cameraRef)
 {
