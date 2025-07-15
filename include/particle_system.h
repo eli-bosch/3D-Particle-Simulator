@@ -18,6 +18,8 @@ class Particle_System {
         void initialize(int count);
         void update(float deltaTime);
         void draw(GLuint shaderProgram);
+
+        std::vector<Particle> getParticles();
 };
 
 #endif 

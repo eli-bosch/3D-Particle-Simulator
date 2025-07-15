@@ -13,28 +13,9 @@
 #include "view.h"
 #include "controller.h"
 #include "particle_system.h"
+#include "boundary.h"
 #include "utils.h"
 
-// Vertex data for a cube
-const float edgeVertices[] = {
-    // Bottom square
-    -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f,
-    0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f,
-    0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f,
-    -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, -0.5f,
-
-    // Top square
-    -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
-    0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f,
-    0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
-    -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, -0.5f,
-
-    // Vertical lines
-    -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f,
-    0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f,
-    0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
-    -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f
-};
 
 int main() {
     // Set up SFML OpenGL context (4.6 core)
@@ -80,30 +61,15 @@ int main() {
     Utils util;
     View camera;
     Controller controller(camera);
-
-    // Create shaders
-    GLuint frameShader = util.createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
-    GLuint particleShader = util.createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
-
-    //Set up GPU storage for cube edges;
-    GLuint edgeVBO, edgeVAO;
-    glGenVertexArrays(1, &edgeVAO);
-    glGenBuffers(1, &edgeVBO);
-
-    glBindVertexArray(edgeVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, edgeVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(edgeVertices), edgeVertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    //TODO: Check why duplicated (If carry over from tutorial or error)
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+    Boundary boundary;
 
     //Initilizes particles
     Particle_System particles;
     particles.initialize(100);
+
+    // Create shaders
+    GLuint frameShader = util.createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
+    GLuint particleShader = util.createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
 
     // Setup render loop
     while (window.isOpen()) {
@@ -141,14 +107,12 @@ int main() {
         glUniformMatrix4fv(frameModelLoc, 1, GL_FALSE, glm::value_ptr(frameModel));
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glBindVertexArray(edgeVAO);
-        glDrawArrays(GL_LINES, 0, 24);
-        glBindVertexArray(0);
+        boundary.draw(frameShader);
 
         //Draws Particles
         glUseProgram(particleShader);
 
-        float fov = glm::radians(60.0f); // match your projection matrix
+        float fov = glm::radians(60.0f); // match the projection matrix
         int height = window.getSize().y;
 
         //TODO: Chache these look ups

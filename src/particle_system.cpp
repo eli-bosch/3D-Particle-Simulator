@@ -75,3 +75,7 @@ void Particle_System::draw(GLuint shaderprogram) { //Batch draw particle vertex 
 
     glBindVertexArray(0);
 }
+
+std::vector<Particle> Particle_System::getParticles() {
+    return this->particles;
+}
