@@ -1,81 +1,44 @@
-#include <particle_system.h>
-#include <glm/gtc/random.hpp>
+#include <particle_system.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/vec4.hpp>
 
-GLuint particleVAO = 0;
-GLuint particleVBO = 0;
+#include <utils.hpp>
 
-Particle_System::Particle_System() {
-    glGenVertexArrays(1, &particleVAO);
-    glGenBuffers(1, &particleVBO);
-}
+void Particle_System::initialize(unsigned int count) {
+    this->particleCount = count;
+    Utils utils;
 
-void Particle_System::initialize(int count) {
-    this->particles.clear();
-    for (int i = 0; i < count; ++i) {
-        Particle p;
-        p.position = glm::linearRand(glm::vec3(-1.f), glm::vec3(1.f));
-        p.velocity = glm::linearRand(glm::vec3(-0.5f), glm::vec3(0.5f));
-        p.acceleration = glm::vec3(0.0f);
-        particles.push_back(p);
+    std::vector<Particle> particles(count);
+    for (auto& p : particles) {
+        p.position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // center, w = 1
+        p.velocity = utils.randomVec4(0.f, 0.5f); // static
     }
 
-    // Create position buffer
-    std::vector<glm::vec3> positions;
-    for (const auto& p : particles)
-        positions.push_back(p.position);
-
-    glBindVertexArray(particleVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
-    glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
+    glGenBuffers(1, &ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, particles.size() * sizeof(Particle), particles.data(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void Particle_System::update(float dt) {
-    for(auto& p: particles) {
-        p.velocity += p.acceleration;
-        p.velocity *= 0.995f; // slows over time
 
-        p.position += p.velocity;
+void Particle_System::draw(GLuint shaderProgram) { //Batch draw particle vertex array
+    glUseProgram(shaderProgram);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
+    std::cout << "Drawing " << particleCount << " particles\n";
 
-        // Wall collisions
-        for (int axis = 0; axis < 3; ++axis) {
-            p.position[axis] += p.velocity[axis];
+    GLuint dummyVAO;
+    glGenVertexArrays(1, &dummyVAO);
+    glBindVertexArray(dummyVAO);
 
-            if (p.position[axis] < -1.f) {
-                p.position[axis] = -1.f;
-                p.velocity[axis] = -p.velocity[axis];
-            }
-            else if (p.position[axis] > 1.f) {
-                p.position[axis] = 1.f;
-                p.velocity[axis] = -p.velocity[axis];
-        }
-}
-
+    glDrawArrays(GL_POINTS, 0, particleCount);
+    GLenum err;
+    if((err = glGetError()) != GL_NO_ERROR) {
+        std::cerr << "GL ERROR: " << err << std::endl;
     }
-
-    // Upload updated positions
-    std::vector<glm::vec3> positions;
-    for (const auto& p : particles)
-        positions.push_back(p.position);
-
-    glBindBuffer(GL_ARRAY_BUFFER, particleVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, positions.size() * sizeof(glm::vec3), positions.data());
 }
 
-void Particle_System::draw(GLuint shaderprogram) { //Batch draw particle vertex array
-    glUseProgram(shaderprogram);
-    glBindVertexArray(particleVAO);
 
-    glDrawArrays(GL_POINTS, 0, particles.size());
 
-    glBindVertexArray(0);
-}
 
-std::vector<Particle> Particle_System::getParticles() {
-    return this->particles;
-}

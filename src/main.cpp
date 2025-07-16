@@ -12,7 +12,7 @@
 
 #include "view.hpp"
 #include "controller.hpp"
-#include "particle_system.h"
+#include "particle_system.hpp"
 #include "boundary.hpp"
 #include "utils.hpp"
 
@@ -64,17 +64,17 @@ int main() {
     Boundary boundary;
 
     //Initilizes particles
-    Particle_System particles;
-    particles.initialize(100);
+    Particle_System particles;  
 
     // Create shaders
     GLuint frameShader = util.createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
     GLuint particleShader = util.createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
+    particles.initialize(100);
 
     // Setup render loop
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
-        particles.update(dt);
+        //particles.update(dt);
 
         // Handle input
         sf::Event event;
@@ -117,12 +117,22 @@ int main() {
 
         //TODO: Chache these look ups
         GLuint particleViewLoc = glGetUniformLocation(particleShader, "view");
+
         GLuint particleProjLoc = glGetUniformLocation(particleShader, "projection");
 
         glUniform1f(glGetUniformLocation(particleShader, "fov"), fov);
+
         glUniform1f(glGetUniformLocation(particleShader, "viewportHeight"), (float)height);
+
         glUniformMatrix4fv(particleViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
         glUniformMatrix4fv(particleProjLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+        if(particleViewLoc == -1) std::cerr << "View uniform not found!" << std::endl;
+        if(particleProjLoc == -1) std::cerr << "Projection uniform not found!" << std::endl;
+        if(fov == -1) std::cerr << "FOV uniform not found!" << std::endl;
+        if(height == -1) std::cerr << "Viewport uniform not found!" << std::endl;
+
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to fill if needed
         particles.draw(particleShader);

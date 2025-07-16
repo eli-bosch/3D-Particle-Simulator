@@ -1,12 +1,14 @@
 #version 460 core
+
 out vec4 FragColor;
 
 void main() {
-    float dist = length(gl_PointCoord - vec2(0.5)); // Distance from center of point
-    float alpha = smoothstep(0.5, 0.45, dist);      // Soft circular edge
+    // gl_PointCoord ranges from (0,0) to (1,1) within the point
+    vec2 coord = gl_PointCoord * 2.0 - 1.0;  // Now from (-1, -1) to (1, 1)
+    float dist = dot(coord, coord);         // Squared distance from center
 
-    if (alpha <= 0.01)
-        discard;  // Fully transparent outside circle
+    if (dist > 1.0)
+        discard;  // Outside the unit circle — discard
 
-    FragColor = vec4(0.45, 1.f, 0.2, alpha); // Transparent edges
+    FragColor = vec4(1.0, 1.0, 1.0, 1.0); // White circle
 }

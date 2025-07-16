@@ -1,5 +1,8 @@
 #include "utils.hpp"
 
+#include <glm/glm.hpp>
+#include <random>
+
 #include <fstream>
 #include <iostream>
 
@@ -62,4 +65,12 @@ GLuint Utils::createShaderProgram(const std::string& vertexPath, const std::stri
     }
 
     return program;
+}
+
+glm::vec4 Utils::randomVec4(float min, float max) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> dist(min, max);
+
+    return glm::vec4(dist(gen), dist(gen), dist(gen), 1.0f); // w = 1.0 for position
 }
