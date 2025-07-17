@@ -22,7 +22,7 @@ void Particle_System::initialize(unsigned int count) {
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
-void Particle_System::initiate(GLuint computeShader, float dt) {
+void Particle_System::update(GLuint computeShader, float dt) {
     glUseProgram(computeShader);
 
     GLint dtLocation = glGetUniformLocation(computeShader, "dt");

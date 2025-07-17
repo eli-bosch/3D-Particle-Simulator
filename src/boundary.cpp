@@ -32,7 +32,7 @@ Boundary::Boundary() : edgeVertices{{
 }
 
 void Boundary::draw(GLuint shaderProgram) {
-    glUseProgram(shaderProgram);
+    //glUseProgram(shaderProgram);
     
     glBindVertexArray(boundaryVAO);
     glDrawArrays(GL_LINES, 0, 72/3); //(72/3) -> 12 lines

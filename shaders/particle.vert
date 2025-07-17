@@ -17,5 +17,6 @@ uniform float viewportHeight;
 void main() {
     vec4 worldPos = particles[gl_VertexID].position;
     gl_Position = projection * view * worldPos;
-    gl_PointSize = max(3.0, fov * viewportHeight / gl_Position.w)/15;
+    
+    gl_PointSize = 25.0 / gl_Position.w;
 }

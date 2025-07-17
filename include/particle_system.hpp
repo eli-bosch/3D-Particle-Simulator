@@ -16,7 +16,7 @@ class Particle_System {
         unsigned int particleCount;
     public:
         void initialize(unsigned int count);
-        void initiate(GLuint computeShader, float dt);
+        void update(GLuint computeShader, float dt);
         void draw(GLuint shaderProgram);
 };
 

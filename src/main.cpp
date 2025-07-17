@@ -15,7 +15,7 @@
 #include "particle_system.hpp"
 #include "boundary.hpp"
 #include "utils.hpp"
-
+#include "uniform_binder.cpp"
 
 int main() {
     // Set up SFML OpenGL context (4.6 core)
@@ -62,8 +62,6 @@ int main() {
     View camera;
     Controller controller(camera);
     Boundary boundary;
-
-    //Initilizes particles
     Particle_System particles;  
 
     // Create shaders
@@ -71,12 +69,23 @@ int main() {
     GLuint particleShader = util.createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
     GLuint computeShader = util.createComputeShaderProgram("shaders/compute.comp");
 
-    particles.initialize(100000);
+    // Cached uniform look ups for transforms
+    Uniform_Binder boundaryUniforms(frameShader);
+    boundaryUniforms.cacheUniform("view");
+    boundaryUniforms.cacheUniform("projection");
+    boundaryUniforms.cacheUniform("model");
+
+    Uniform_Binder particleUniforms(particleShader);
+    particleUniforms.cacheUniform("view");
+    particleUniforms.cacheUniform("projection");
+    particleUniforms.cacheUniform("fov");
+    particleUniforms.cacheUniform("height");
+
+    particles.initialize(100);
 
     // Setup render loop
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
-        //particles.update(dt);
 
         // Handle input
         sf::Event event;
@@ -93,52 +102,31 @@ int main() {
         // Camera instance
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(60.0f), 800.f / 600.f, 0.1f, 100.0f);
+        float fov = glm::radians(60.0f); 
+        int height = window.getSize().y;
 
-        // Draws Cube
+        // Draws boundary frame
         glUseProgram(frameShader);
 
-        //TODO: Cache these look ups 
-        GLuint frameViewLoc = glGetUniformLocation(frameShader, "view");
-        GLuint frameProjLoc = glGetUniformLocation(frameShader, "projection");
-        GLuint frameModelLoc = glGetUniformLocation(frameShader, "model");
-
         glm::mat4 frameModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); 
-
-        glUniformMatrix4fv(frameViewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(frameProjLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(frameModelLoc, 1, GL_FALSE, glm::value_ptr(frameModel));
+        boundaryUniforms.setMat4("view", view);
+        boundaryUniforms.setMat4("projection", projection);
+        boundaryUniforms.setMat4("model", frameModel);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         boundary.draw(frameShader);
 
-        //Update Particles
+        //Update Particles based on time that has passed
         glUseProgram(computeShader);
-        particles.initiate(computeShader, dt);
+        particles.update(computeShader, dt);
 
         //Draws Particles
         glUseProgram(particleShader);
 
-        float fov = glm::radians(60.0f); // match the projection matrix
-        int height = window.getSize().y;
-
-        //TODO: Chache these look ups
-        GLuint particleViewLoc = glGetUniformLocation(particleShader, "view");
-
-        GLuint particleProjLoc = glGetUniformLocation(particleShader, "projection");
-
-        glUniform1f(glGetUniformLocation(particleShader, "fov"), fov);
-
-        glUniform1f(glGetUniformLocation(particleShader, "viewportHeight"), (float)height);
-
-        glUniformMatrix4fv(particleViewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-        glUniformMatrix4fv(particleProjLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-        if(particleViewLoc == -1) std::cerr << "View uniform not found!" << std::endl;
-        if(particleProjLoc == -1) std::cerr << "Projection uniform not found!" << std::endl;
-        if(fov == -1) std::cerr << "FOV uniform not found!" << std::endl;
-        if(height == -1) std::cerr << "Viewport uniform not found!" << std::endl;
-
+        particleUniforms.setMat4("view", view);
+        particleUniforms.setMat4("projection", projection);
+        particleUniforms.setFloat("fov", fov);
+        particleUniforms.setFloat("height", (float)height);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to fill if needed
         particles.draw(particleShader);

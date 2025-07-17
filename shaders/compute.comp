@@ -17,17 +17,34 @@ void main() {
     uint idx = gl_GlobalInvocationID.x;
     if (idx >= particles.length()) return;
 
-    //Wall collision
-    if(particles[idx].position.x > 1.0 || particles[idx].position.x < -1.0) {
-        particles[idx].velocity.x *= -1;
-    }
-    if(particles[idx].position.y > 1.0 || particles[idx].position.y < -1.0) {
-        particles[idx].velocity.y *= -1;
-    }
-    if(particles[idx].position.z > 1.0 || particles[idx].position.z < -1.0) {
-        particles[idx].velocity.z *= -1;
-    }
+    //Gravity - needs more indepth calculations
+    particles[idx].velocity.y -= .1; 
 
     //Position update
     particles[idx].position.xyz += particles[idx].velocity.xyz * dt;
+
+    // Wall collision with clamping
+    if (particles[idx].position.x > 1.0) {
+        particles[idx].position.x = 1.0;
+        particles[idx].velocity.x *= -1.0;
+    }else if (particles[idx].position.x < -1.0) {
+        particles[idx].position.x = -1.0;
+        particles[idx].velocity.x *= -1.0;
+    }
+
+    if (particles[idx].position.y > 1.0) {
+        particles[idx].position.y = 1.0;
+        particles[idx].velocity.y *= -1.0;
+    } else if (particles[idx].position.y < -1.0) {
+        particles[idx].position.y = -1.0;
+        particles[idx].velocity.y *= -1.0;
+    }
+
+    if (particles[idx].position.z > 1.0) {
+        particles[idx].position.z = 1.0;
+        particles[idx].velocity.z *= -1.0;
+    } else if (particles[idx].position.z < -1.0) {
+        particles[idx].position.z = -1.0;
+        particles[idx].velocity.z *= -1.0;
+    }
 }
