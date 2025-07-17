@@ -67,6 +67,28 @@ GLuint Utils::createShaderProgram(const std::string& vertexPath, const std::stri
     return program;
 }
 
+GLuint Utils::createComputeShaderProgram(const std::string& computePath) {
+    std::string computeCode = loadShaderSource(computePath);
+
+    GLuint computeShader = compileShader(GL_COMPUTE_SHADER, computeCode);
+
+    GLuint program = glCreateProgram();
+    glAttachShader(program, computeShader);
+    glLinkProgram(program);
+
+    glDeleteShader(computeShader);
+
+    GLint success;
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if(!success) {
+        char log[512];
+        glGetProgramInfoLog(program, 512, nullptr, log);
+        std::cerr << "Compute Shader linking failed\n" << log << std::endl;
+    }
+
+    return program;
+}
+
 glm::vec4 Utils::randomVec4(float min, float max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());

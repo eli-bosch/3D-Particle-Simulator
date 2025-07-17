@@ -1,0 +1,33 @@
+#version 460 core
+
+layout(local_size_x = 256) in;
+
+struct Particle {
+    vec4 position;
+    vec4 velocity;
+};
+
+layout(std430, binding = 0) buffer ParticleBuffer {
+    Particle particles[];
+};
+
+uniform float dt;
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    if (idx >= particles.length()) return;
+
+    //Wall collision
+    if(particles[idx].position.x > 1.0 || particles[idx].position.x < -1.0) {
+        particles[idx].velocity.x *= -1;
+    }
+    if(particles[idx].position.y > 1.0 || particles[idx].position.y < -1.0) {
+        particles[idx].velocity.y *= -1;
+    }
+    if(particles[idx].position.z > 1.0 || particles[idx].position.z < -1.0) {
+        particles[idx].velocity.z *= -1;
+    }
+
+    //Position update
+    particles[idx].position.xyz += particles[idx].velocity.xyz * dt;
+}

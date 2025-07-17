@@ -13,7 +13,9 @@ class Utils {
         
         std::string loadShaderSource(const std::string& path);
         GLuint compileShader(GLenum type, const std::string& source);
+        
         GLuint createShaderProgram(const std::string& vertexPath, const std::string& fragmentPath);
+        GLuint createComputeShaderProgram(const std::string& computePath);
 
         glm::vec4 randomVec4(float min, float max);
 };

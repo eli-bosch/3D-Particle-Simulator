@@ -69,7 +69,9 @@ int main() {
     // Create shaders
     GLuint frameShader = util.createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
     GLuint particleShader = util.createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
-    particles.initialize(100);
+    GLuint computeShader = util.createComputeShaderProgram("shaders/compute.comp");
+
+    particles.initialize(100000);
 
     // Setup render loop
     while (window.isOpen()) {
@@ -108,6 +110,10 @@ int main() {
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         boundary.draw(frameShader);
+
+        //Update Particles
+        glUseProgram(computeShader);
+        particles.initiate(computeShader, dt);
 
         //Draws Particles
         glUseProgram(particleShader);
