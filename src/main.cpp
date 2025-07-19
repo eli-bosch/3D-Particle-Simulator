@@ -15,7 +15,7 @@
 #include "particle_system.hpp"
 #include "boundary.hpp"
 #include "utils.hpp"
-#include "uniform_binder.cpp"
+#include "uniform_binder.hpp"
 
 int main() {
     // Set up SFML OpenGL context (4.6 core)
@@ -62,16 +62,15 @@ int main() {
 
 
     // Set up util, camera and controller
-    Utils util;
     View camera;
     Controller controller(camera);
     Boundary boundary;
     Particle_System particles;  
 
     // Create shaders
-    GLuint frameShader = util.createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
-    GLuint particleShader = util.createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
-    GLuint computeShader = util.createComputeShaderProgram("shaders/compute.comp");
+    GLuint frameShader = Utils::createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
+    GLuint particleShader = Utils::createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
+    GLuint computeShader = Utils::createComputeShaderProgram("shaders/compute.comp");
 
     // Cached uniform look ups for transforms
     Uniform_Binder boundaryUniforms(frameShader);
@@ -85,7 +84,7 @@ int main() {
     particleUniforms.cacheUniform("fov");
     particleUniforms.cacheUniform("height");
 
-    particles.initialize(50000);
+    particles.initialize(10);
 
     // Setup render loop
     while (window.isOpen()) {
@@ -93,12 +92,11 @@ int main() {
         totalTime += dt;
         frameCount++;
 
-        if(frameCount >= sampleWindow) {
+        if(frameCount >= sampleWindow) { //For testing
             float avgFrameTime = totalTime / frameCount;
             float avgFPS = 1.0f / avgFrameTime;
 
             std::cout << "AVG FPS: " << avgFPS << ", Frame Time: " << avgFrameTime * 1000 << " ms" << std::endl;
-
 
             totalTime = 0.f;
             frameCount = 0;

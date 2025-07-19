@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UNIFORM_BINDER_HPP
+#define UNIFORM_BINDER_HPP
 
 #include <glad/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -35,3 +36,5 @@ class Uniform_Binder {
             glUniform1f(getUniform(name), val);
         }
 };
+
+#endif

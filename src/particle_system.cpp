@@ -7,13 +7,11 @@
 
 void Particle_System::initialize(unsigned int count) {
     this->particleCount = count;
-    Utils utils;
 
     std::vector<Particle> particles(count);
     for (auto& p : particles) {
-        p.position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // center, w = 1
-        p.velocity = utils.randomVec4(-0.5f, 0.5f); // TODO: make static
-        p.radius = 0.01;
+        p.position = Utils::randomVec4(-1.f, 1.f); 
+        p.velocity = Utils::randomVec4(-0.5f, 0.5f); 
     }
 
     glGenBuffers(1, &ssbo);
@@ -27,12 +25,7 @@ void Particle_System::update(GLuint computeShader, float dt) {
     glUseProgram(computeShader);
 
     GLint dtLocation = glGetUniformLocation(computeShader, "dt");
-    if (dtLocation != -1) {
-        glUniform1f(dtLocation, dt);
-    } else {
-        //std::cerr << "Warning: Uniform 'dt' not found in compute shader!\n";
-    }
-
+    glUniform1f(dtLocation, dt);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
     
     GLuint numGroups = (particleCount + 255) / 256;
@@ -45,17 +38,12 @@ void Particle_System::update(GLuint computeShader, float dt) {
 void Particle_System::draw(GLuint shaderProgram) { //Batch draw particle vertex array
     glUseProgram(shaderProgram);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
-    //std::cout << "Drawing " << particleCount << " particles\n";
 
     GLuint dummyVAO;
     glGenVertexArrays(1, &dummyVAO);
     glBindVertexArray(dummyVAO);
 
     glDrawArrays(GL_POINTS, 0, particleCount);
-    GLenum err;
-    // if((err = glGetError()) != GL_NO_ERROR) {
-    //     std::cerr << "GL ERROR: " << err << std::endl;
-    // }
 }
 
 

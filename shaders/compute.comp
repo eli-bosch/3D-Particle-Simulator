@@ -5,8 +5,6 @@ layout(local_size_x = 256) in;
 struct Particle {
     vec4 position;
     vec4 velocity;
-    float radius;
-    float padding[3];
 };
 
 layout(std430, binding = 0) buffer ParticleBuffer {
@@ -15,10 +13,13 @@ layout(std430, binding = 0) buffer ParticleBuffer {
 
 //Functions
 
+uniform float dt;
+uniform float radius = 0.01;
+
 bool checkCollision(Particle p1, Particle p2) {
     vec3 delta = p1.position.xyz - p2.position.xyz;
     float distSq = dot(delta, delta);
-    float combinedRadius = p1.radius + p2.radius;
+    float combinedRadius = 2*radius;
     return distSq < (combinedRadius * combinedRadius);
 };
 
@@ -26,7 +27,7 @@ bool checkCollision(Particle p1, Particle p2) {
 void resolveCollision(inout Particle p1, inout Particle p2) {
     vec3 delta = p1.position.xyz - p2.position.xyz;
     float dist = length(delta);
-    float combinedRadius = p1.radius + p2.radius;
+    float combinedRadius = 2*radius;
 
     // Avoid division by zero
     if (dist < 0.0001) return;
@@ -52,9 +53,6 @@ void resolveCollision(inout Particle p1, inout Particle p2) {
     p1.position.xyz += correction;
     p2.position.xyz -= correction;
 };
-
-
-uniform float dt;
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
