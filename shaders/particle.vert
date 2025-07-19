@@ -3,6 +3,8 @@
 struct Particle {
     vec4 position;
     vec4 velocity;
+    float radius;
+    float padding[3];
 };
 
 layout(std430, binding = 0) buffer ParticleBuffer {
@@ -18,5 +20,5 @@ void main() {
     vec4 worldPos = particles[gl_VertexID].position;
     gl_Position = projection * view * worldPos;
     
-    gl_PointSize = 25.0 / gl_Position.w;
+    gl_PointSize = 12.5 / gl_Position.w;
 }

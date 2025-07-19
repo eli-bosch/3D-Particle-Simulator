@@ -5,9 +5,11 @@
 #include <glad/gl.h>
 #include <iostream>
 
-struct Particle{
-    glm::vec4 position;
-    glm::vec4 velocity;
+struct Particle{ // Needs to be multiple of 16 bytes for performance and cpu/gpu communication
+    glm::vec4 position; //16 bytes
+    glm::vec4 velocity; //16 bytes
+    float radius; //4 bytes
+    float padding[3]; //12 bytes -> can be used for other variables in the future
 };
 
 class Particle_System {

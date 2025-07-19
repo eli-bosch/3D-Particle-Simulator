@@ -1,15 +1,58 @@
 #version 460 core
-
+// Set up
 layout(local_size_x = 256) in;
 
 struct Particle {
     vec4 position;
     vec4 velocity;
+    float radius;
+    float padding[3];
 };
 
 layout(std430, binding = 0) buffer ParticleBuffer {
     Particle particles[];
 };
+
+//Functions
+
+bool checkCollision(Particle p1, Particle p2) {
+    vec3 delta = p1.position.xyz - p2.position.xyz;
+    float distSq = dot(delta, delta);
+    float combinedRadius = p1.radius + p2.radius;
+    return distSq < (combinedRadius * combinedRadius);
+};
+
+
+void resolveCollision(inout Particle p1, inout Particle p2) {
+    vec3 delta = p1.position.xyz - p2.position.xyz;
+    float dist = length(delta);
+    float combinedRadius = p1.radius + p2.radius;
+
+    // Avoid division by zero
+    if (dist < 0.0001) return;
+
+    vec3 normal = delta / dist;
+
+    // Relative velocity
+    vec3 relVel = p1.velocity.xyz - p2.velocity.xyz;
+    float separatingVel = dot(relVel, normal);
+
+    // Already separating
+    if (separatingVel > 0.0) return;
+
+    // Resolve velocities using equal mass elastic collision
+    vec3 impulse = -separatingVel * normal;
+
+    p1.velocity.xyz += impulse;
+    p2.velocity.xyz -= impulse;
+
+    // Optional: push particles apart so they don't stick
+    float penetration = combinedRadius - dist;
+    vec3 correction = 0.5 * penetration * normal;
+    p1.position.xyz += correction;
+    p2.position.xyz -= correction;
+};
+
 
 uniform float dt;
 
@@ -46,5 +89,13 @@ void main() {
     } else if (particles[idx].position.z < -1.0) {
         particles[idx].position.z = -1.0;
         particles[idx].velocity.z *= -1.0;
+    }
+
+    for (uint j = 0; j < particles.length(); ++j) {
+        if (idx == j) continue;
+
+        if (checkCollision(particles[idx], particles[j])) {
+            resolveCollision(particles[idx], particles[j]);
+        }
     }
 }

@@ -12,7 +12,8 @@ void Particle_System::initialize(unsigned int count) {
     std::vector<Particle> particles(count);
     for (auto& p : particles) {
         p.position = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // center, w = 1
-        p.velocity = utils.randomVec4(-0.5f, 0.5f); // static
+        p.velocity = utils.randomVec4(-0.5f, 0.5f); // TODO: make static
+        p.radius = 0.01;
     }
 
     glGenBuffers(1, &ssbo);

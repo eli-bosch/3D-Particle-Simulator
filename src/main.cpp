@@ -21,6 +21,10 @@ int main() {
     // Set up SFML OpenGL context (4.6 core)
     sf::Clock clock;
 
+    float totalTime = 0.0f;
+    int frameCount = 0;
+    const int sampleWindow = 100;
+
     sf::ContextSettings settings;
     settings.depthBits = 24;
     settings.stencilBits = 8;
@@ -81,11 +85,24 @@ int main() {
     particleUniforms.cacheUniform("fov");
     particleUniforms.cacheUniform("height");
 
-    particles.initialize(100);
+    particles.initialize(50000);
 
     // Setup render loop
     while (window.isOpen()) {
         float dt = clock.restart().asSeconds();
+        totalTime += dt;
+        frameCount++;
+
+        if(frameCount >= sampleWindow) {
+            float avgFrameTime = totalTime / frameCount;
+            float avgFPS = 1.0f / avgFrameTime;
+
+            std::cout << "AVG FPS: " << avgFPS << ", Frame Time: " << avgFrameTime * 1000 << " ms" << std::endl;
+
+
+            totalTime = 0.f;
+            frameCount = 0;
+        }
 
         // Handle input
         sf::Event event;
