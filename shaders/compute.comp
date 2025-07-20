@@ -59,7 +59,7 @@ void main() {
     if (idx >= particles.length()) return;
 
     //Gravity - needs more indepth calculations
-    particles[idx].velocity.y -= .1; 
+    particles[idx].velocity.y -= 5 * dt; 
 
     //Position update
     particles[idx].position.xyz += particles[idx].velocity.xyz * dt;

@@ -36,7 +36,7 @@ int main() {
     //Rendering window
     sf::Window window(sf::VideoMode(800, 600), "3D Particle Simulator",
                       sf::Style::Default, settings);
-    window.setVerticalSyncEnabled(true);
+    window.setVerticalSyncEnabled(false);
 
     // Load OpenGL via GLAD
     if (!gladLoadGL((GLADloadfunc)sf::Context::getFunction)) {
@@ -84,7 +84,7 @@ int main() {
     particleUniforms.cacheUniform("fov");
     particleUniforms.cacheUniform("height");
 
-    particles.initialize(10);
+    particles.initialize(100000);
 
     // Setup render loop
     while (window.isOpen()) {
