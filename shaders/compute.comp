@@ -89,6 +89,7 @@ void main() {
         particles[idx].velocity.z *= -1.0;
     }
 
+    /*
     for (uint j = 0; j < particles.length(); ++j) {
         if (idx == j) continue;
 
@@ -96,4 +97,5 @@ void main() {
             resolveCollision(particles[idx], particles[j]);
         }
     }
+    */
 }

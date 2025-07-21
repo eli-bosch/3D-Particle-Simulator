@@ -4,6 +4,7 @@
 #include <glm/vec4.hpp>
 #include <glad/gl.h>
 #include <iostream>
+#include <spatial_grid.hpp>
 
 struct Particle{ // Needs to be multiple of 16 bytes for performance and cpu/gpu communication
     glm::vec4 position; //16 bytes
@@ -14,6 +15,7 @@ class Particle_System {
     private:
         GLuint ssbo;
         unsigned int particleCount;
+        Spatial_Grid grid = Spatial_Grid(0.02f);
     public:
         void initialize(unsigned int count);
         void update(GLuint computeShader, float dt);
