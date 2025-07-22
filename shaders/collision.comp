@@ -1,0 +1,114 @@
+#version 460 core
+// Set up
+layout(local_size_x = 256) in;
+
+#define MaxParticlesPerCell 32
+#define InteractionRadius 0.05
+#define InteractionRadiusSq (InteractionRadius * InteractionRadius)
+
+struct Particle {
+    vec4 position;
+    vec4 velocity;
+    uint gridID;
+    uint padding[3];
+};
+
+layout(std430, binding = 0) buffer ParticleBuffer {
+    Particle particles[];
+};
+
+
+struct GridCell {
+    uint count;
+    uint indices[MaxParticlesPerCell];
+};
+
+layout(std430, binding = 1) buffer GridBuffer {
+    GridCell gridCells[];
+};
+
+uniform uint particleCount;
+uniform ivec3 gridDims;
+uniform int gridStride;
+uniform vec3 simMin;
+uniform vec3 simMax;
+uniform float cellSize;
+uniform float dt;
+
+uint flattenIndex(ivec3 coord) {
+    return uint(coord.x + coord.y * gridDims.x + coord.z * gridDims.x * gridDims.y);
+}
+
+bool inBounds(ivec3 coord) {
+    return all(greaterThanEqual(coord, ivec3(0))) &&
+           all(lessThan(coord, gridDims));
+}
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    if (idx >= particleCount) return;
+
+    Particle self = particles[idx];
+    vec3 pos = self.position.xyz;
+
+    // Decode grid cell
+    ivec3 baseCell;
+    baseCell.z = int(self.gridID) / (gridDims.x * gridDims.y);
+    baseCell.y = (int(self.gridID) / gridDims.x) % gridDims.y;
+    baseCell.x = int(self.gridID) % gridDims.x;
+
+    vec3 velocityChange = vec3(0.0);
+
+    // Loop over 27 neighboring cells
+    for (int dz = -1; dz <= 1; ++dz) {
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                ivec3 neighbor = baseCell + ivec3(dx, dy, dz);
+                if (!inBounds(neighbor)) continue;
+
+                uint flatIdx = flattenIndex(neighbor);
+                GridCell cell = gridCells[flatIdx];
+
+                for (uint i = 0; i < cell.count; ++i) {
+                    uint otherIdx = cell.indices[i];
+                    if (otherIdx == idx) continue;
+
+                    Particle other = particles[otherIdx];
+                    vec3 diff = pos - other.position.xyz;
+                    float dist2 = dot(diff, diff);
+
+                    if (dist2 < InteractionRadiusSq && dist2 > 0.00001) {
+                        float dist = sqrt(dist2);
+                        vec3 dir = normalize(diff);
+
+                        // Simple repulsion force
+                        float strength = 0.5 * (InteractionRadius - dist);
+                        velocityChange += dir * strength;
+                    }
+                }
+            }
+        }
+    }
+
+    // Apply the computed force as velocity change
+    particles[idx].velocity.xyz += velocityChange * dt;
+    particles[idx].position.xyz += particles[idx].velocity.xyz * dt;
+
+    vec3 p = particles[idx].position.xyz;
+    vec3 v = particles[idx].velocity.xyz;
+    float radius = 0.01; // radius of particle for wall proximity
+
+    for (int i = 0; i < 3; ++i) {
+        if (p[i] < simMin[i] + radius) {
+            p[i] = simMin[i] + radius;
+            v[i] *= -1.0;
+        }
+        if (p[i] > simMax[i] - radius) {
+            p[i] = simMax[i] - radius;
+            v[i] *= -1.0;
+        }
+    }
+
+    particles[idx].position.xyz = p;
+    particles[idx].velocity.xyz = v;
+}

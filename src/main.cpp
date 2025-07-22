@@ -70,7 +70,8 @@ int main() {
     // Create shaders
     GLuint frameShader = Utils::createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
     GLuint particleShader = Utils::createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
-    GLuint computeShader = Utils::createComputeShaderProgram("shaders/compute.comp");
+    GLuint collisionShader = Utils::createComputeShaderProgram("shaders/collision.comp");
+    GLuint gridAssignShader = Utils::createComputeShaderProgram("shaders/assign_grid.comp");
 
     // Cached uniform look ups for transforms
     Uniform_Binder boundaryUniforms(frameShader);
@@ -84,7 +85,7 @@ int main() {
     particleUniforms.cacheUniform("fov");
     particleUniforms.cacheUniform("height");
 
-    particles.initialize(100000);
+    particles.initialize(1);
 
     // Setup render loop
     while (window.isOpen()) {
@@ -123,7 +124,8 @@ int main() {
         // Draws boundary frame
         glUseProgram(frameShader);
 
-        glm::mat4 frameModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); 
+        //glm::mat4 frameModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f));
+        glm::mat4 frameModel = glm::mat4(1.f); 
         boundaryUniforms.setMat4("view", view);
         boundaryUniforms.setMat4("projection", projection);
         boundaryUniforms.setMat4("model", frameModel);
@@ -132,8 +134,7 @@ int main() {
         boundary.draw(frameShader);
 
         //Update Particles based on time that has passed
-        glUseProgram(computeShader);
-        particles.update(computeShader, dt);
+        particles.update(gridAssignShader, collisionShader, dt);
 
         //Draws Particles
         glUseProgram(particleShader);
