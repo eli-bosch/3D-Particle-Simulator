@@ -31,7 +31,7 @@ Boundary::Boundary() : edgeVertices{{
     glBindVertexArray(0);
 }
 
-void Boundary::draw(GLuint shaderProgram) {
+void Boundary::render(GLuint shaderProgram) {
     //glUseProgram(shaderProgram);
     
     glBindVertexArray(boundaryVAO);

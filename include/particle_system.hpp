@@ -1,10 +1,14 @@
 #ifndef PARTICLE_SYSTEM_HPP
 #define PARTICLE_SYSTEM_HPP
 
+#include <uniform_binder.hpp>
+
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 #include <glad/gl.h>
+
 #include <iostream>
+
 
 constexpr int MaxParticlesPerCell = 32;
 
@@ -23,6 +27,9 @@ struct GridCell {
 
 class Particle_System {
     private:
+        Uniform_Binder gridUniforms;
+        Uniform_Binder collisionUniforms;
+
         GLuint particle_ssbo;
         GLuint spatial_ssbo;
 
@@ -30,13 +37,17 @@ class Particle_System {
 
         float cellSize = 0.02;
         glm::vec3 simMin = {-1.f, -1.f, -1.f};
-        int gridDimX = 100, gridDimY = 100, gridDimZ = 100;
+        int gridDim = 100;
     public:
+        Particle_System(GLuint gridAssignShader, GLuint collisionShader);
+
         void initialize(unsigned int count);
         void initializeSpatialGrid();
 
-        void update(GLuint gridAssignShader, GLuint collisionShader, float dt);
-        void draw(GLuint shaderProgram);
+        void updateGrid(GLuint gridAssignShader);
+        void updateParticle(GLuint collisionShader, float dt);
+
+        void render(GLuint shaderProgram);
 
         void cleanup();
 };

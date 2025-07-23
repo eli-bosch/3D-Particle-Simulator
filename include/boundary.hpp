@@ -12,7 +12,7 @@ class Boundary {
 
     public:
         Boundary();
-        void draw(GLuint shaderProgram);
+        void render(GLuint shaderProgram);
 };
 
 #endif 

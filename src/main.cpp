@@ -60,18 +60,17 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
-    // Set up util, camera and controller
-    View camera;
-    Controller controller(camera);
-    Boundary boundary;
-    Particle_System particles;  
-
     // Create shaders
     GLuint frameShader = Utils::createShaderProgram("shaders/frame.vert", "shaders/frame.frag");
     GLuint particleShader = Utils::createShaderProgram("shaders/particle.vert", "shaders/particle.frag");
-    GLuint collisionShader = Utils::createComputeShaderProgram("shaders/collision.comp");
     GLuint gridAssignShader = Utils::createComputeShaderProgram("shaders/assign_grid.comp");
+    GLuint collisionShader = Utils::createComputeShaderProgram("shaders/collision.comp");
+
+    // Set up object references
+    View camera;
+    Controller controller(camera);
+    Boundary boundary;
+    Particle_System particles(gridAssignShader, collisionShader);  
 
     // Cached uniform look ups for transforms
     Uniform_Binder boundaryUniforms(frameShader);
@@ -124,17 +123,17 @@ int main() {
         // Draws boundary frame
         glUseProgram(frameShader);
 
-        //glm::mat4 frameModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f));
-        glm::mat4 frameModel = glm::mat4(1.f); 
+        glm::mat4 frameModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); 
         boundaryUniforms.setMat4("view", view);
         boundaryUniforms.setMat4("projection", projection);
         boundaryUniforms.setMat4("model", frameModel);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        boundary.draw(frameShader);
+        boundary.render(frameShader);
 
         //Update Particles based on time that has passed
-        particles.update(gridAssignShader, collisionShader, dt);
+        particles.updateGrid(gridAssignShader);
+        particles.updateParticle(collisionShader, dt);
 
         //Draws Particles
         glUseProgram(particleShader);
@@ -145,7 +144,7 @@ int main() {
         particleUniforms.setFloat("height", (float)height);
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to fill if needed
-        particles.draw(particleShader);
+        particles.render(particleShader);
 
         // Display
         window.display();

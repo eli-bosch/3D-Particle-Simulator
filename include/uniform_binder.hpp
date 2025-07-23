@@ -28,12 +28,24 @@ class Uniform_Binder {
             return loc;
         }
 
+        void setVec3(const std::string& name, const glm::vec3& vec) {
+            glUniform3fv(getUniform(name), 1, glm::value_ptr(vec));
+        }
+
         void setMat4(const std::string& name, const glm::mat4& mat){
             glUniformMatrix4fv(getUniform(name), 1, GL_FALSE, glm::value_ptr(mat));
         }
 
         void setFloat(const std::string& name, float val) {
             glUniform1f(getUniform(name), val);
+        }
+
+        void setInt(const std::string& name, int val) {
+            glUniform1i(getUniform(name), val);
+        }
+
+        void setUInt(const std::string& name, unsigned int val) {
+            glUniform1ui(getUniform(name), val);
         }
 };
 
