@@ -11,8 +11,6 @@ layout(local_size_x = 256) in;
 #define RepulsionStrength 1.2
 #define Damping 1.0        
 #define NoiseStrength 1.0
-#define TurbulenceStrength 1.5
-
 
 struct Particle {
     vec4 position;
