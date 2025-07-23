@@ -22,7 +22,7 @@ void Particle_System::initialize(unsigned int count)
     for (uint32_t i = 0; i < particleCount; i++)
     {
         particles[i].position = Utils::randomVec4(-1.f, 1.f);
-        particles[i].velocity = Utils::randomVec4(-0.5, 0.5);
+        particles[i].velocity = Utils::randomVec4(-1.f, 1.f);
     }
 
     //Initialization of particle ssbo

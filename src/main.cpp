@@ -84,7 +84,7 @@ int main() {
     particleUniforms.cacheUniform("fov");
     particleUniforms.cacheUniform("height");
 
-    particles.initialize(100000);
+    particles.initialize(1000000);
 
     // Setup render loop
     while (window.isOpen()) {
