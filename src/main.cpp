@@ -84,7 +84,7 @@ int main() {
     particleUniforms.cacheUniform("fov");
     particleUniforms.cacheUniform("height");
 
-    particles.initialize(1);
+    particles.initialize(100000);
 
     // Setup render loop
     while (window.isOpen()) {
@@ -123,7 +123,7 @@ int main() {
         // Draws boundary frame
         glUseProgram(frameShader);
 
-        glm::mat4 frameModel = glm::scale(glm::mat4(1.0f), glm::vec3(2.0f)); 
+        glm::mat4 frameModel = glm::mat4(1.0f);
         boundaryUniforms.setMat4("view", view);
         boundaryUniforms.setMat4("projection", projection);
         boundaryUniforms.setMat4("model", frameModel);

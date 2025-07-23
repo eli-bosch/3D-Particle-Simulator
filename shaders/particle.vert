@@ -3,6 +3,8 @@
 struct Particle {
     vec4 position;
     vec4 velocity;
+    uint gridID;
+    int padding[3];
 };
 
 layout(std430, binding = 0) buffer ParticleBuffer {

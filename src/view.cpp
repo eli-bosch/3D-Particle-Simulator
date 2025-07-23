@@ -6,7 +6,7 @@
 View::View() {
     this->yaw = glm::radians(0.f);
     this->pitch = glm::radians(0.f);
-    this->radius = 8.f;
+    this->radius = 4.f;
     this->center = glm::vec3(0.f);
 }
 

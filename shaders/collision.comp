@@ -28,7 +28,7 @@ layout(std430, binding = 1) buffer GridBuffer {
 };
 
 uniform uint particleCount;
-uniform ivec3 gridDims;
+uniform int gridDims;
 uniform int gridStride;
 uniform vec3 simMin;
 uniform vec3 simMax;
@@ -36,12 +36,12 @@ uniform float cellSize;
 uniform float dt;
 
 uint flattenIndex(ivec3 coord) {
-    return uint(coord.x + coord.y * gridDims.x + coord.z * gridDims.x * gridDims.y);
+    return uint(coord.x + coord.y * gridDims + coord.z * gridDims * gridDims);
 }
 
 bool inBounds(ivec3 coord) {
     return all(greaterThanEqual(coord, ivec3(0))) &&
-           all(lessThan(coord, gridDims));
+           all(lessThan(coord, ivec3(gridDims)));
 }
 
 void main() {
@@ -53,9 +53,9 @@ void main() {
 
     // Decode grid cell
     ivec3 baseCell;
-    baseCell.z = int(self.gridID) / (gridDims.x * gridDims.y);
-    baseCell.y = (int(self.gridID) / gridDims.x) % gridDims.y;
-    baseCell.x = int(self.gridID) % gridDims.x;
+    baseCell.z = int(self.gridID) / (gridDims * gridDims);
+    baseCell.y = (int(self.gridID) / gridDims) % gridDims;
+    baseCell.x = int(self.gridID) % gridDims;
 
     vec3 velocityChange = vec3(0.0);
 
@@ -91,21 +91,22 @@ void main() {
     }
 
     // Apply the computed force as velocity change
-    particles[idx].velocity.xyz += velocityChange * dt;
+    particles[idx].velocity.xyz += (velocityChange * dt);
+    particles[idx].velocity.y += (-5*dt);
     particles[idx].position.xyz += particles[idx].velocity.xyz * dt;
 
     vec3 p = particles[idx].position.xyz;
     vec3 v = particles[idx].velocity.xyz;
-    float radius = 0.01; // radius of particle for wall proximity
+    const float radius = 0.01; // radius of particle for wall proximity
 
     for (int i = 0; i < 3; ++i) {
         if (p[i] < simMin[i] + radius) {
             p[i] = simMin[i] + radius;
-            v[i] *= -1.0;
+            v[i] *= -0.98;
         }
         if (p[i] > simMax[i] - radius) {
             p[i] = simMax[i] - radius;
-            v[i] *= -1.0;
+            v[i] *= -0.98;
         }
     }
 

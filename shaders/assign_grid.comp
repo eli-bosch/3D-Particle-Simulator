@@ -26,22 +26,33 @@ layout(std430, binding = 1) buffer GridBuffer {
 
 uniform float cellSize;
 uniform vec3 simMin;
-uniform ivec3 gridDims;
+uniform int gridDims;
 uniform uint particleCount;
 
 uint flattenIndex(ivec3 cellCoords) {
-    return uint(cellCoords.x + cellCoords.y * gridDims.x + cellCoords.z * gridDims.x * gridDims.y);
+    return uint(cellCoords.x + cellCoords.y * gridDims + cellCoords.z * gridDims * gridDims);
 }
 
 void main() {
     uint idx = gl_GlobalInvocationID.x;
+
+    // Only run this section for the first N threads
+    uint totalGridCells = uint(gridDims * gridDims * gridDims);
+    if (idx < totalGridCells) {
+        gridCells[idx].count = 0u;
+    }
+
+    // Ensure all threads wait for clear to finish before inserting particles
+    barrier();
+
+
     if(idx >= particleCount) return;
 
     vec3 pos = particles[idx].position.xyz;
 
     //Compute which cell this particle belongs to
     ivec3 cellCoords = ivec3(floor((pos - simMin) / cellSize));
-    cellCoords = clamp(cellCoords, ivec3(0), gridDims - 1);
+    cellCoords = clamp(cellCoords, ivec3(0), ivec3(gridDims - 1));
 
     uint gridIndex = flattenIndex(cellCoords);
 

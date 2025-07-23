@@ -23,8 +23,6 @@ void Particle_System::initialize(unsigned int count)
     {
         particles[i].position = Utils::randomVec4(-1.f, 1.f);
         particles[i].velocity = Utils::randomVec4(-0.5, 0.5);
-
-        particles[i].gridID = i;
     }
 
     //Initialization of particle ssbo
@@ -83,6 +81,7 @@ void Particle_System::updateParticle(GLuint collisionShader, float dt) {
     glUseProgram(collisionShader);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, particle_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, spatial_ssbo);
 
     // Updating cached uniforms
     collisionUniforms.setUInt("particleCount", this->particleCount);
@@ -101,6 +100,7 @@ void Particle_System::updateParticle(GLuint collisionShader, float dt) {
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, 0);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
 }
 
 void Particle_System::render(GLuint shaderProgram)
