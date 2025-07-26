@@ -4,7 +4,9 @@ The simulator supports spatial partitioning and interactive camera controls for 
 
 ## Features
 - GPU-based particle simulation using OpenGL compute shaders
+- All particles stored in GPU using a Shader Storage Buffer Object (SSBO)
 - Spatial partitioning with uniform grid and cell hashing
+- All spatially partitioned cells are stored in the GPU using SSBO
 - Simple collision handling and particle repulsion
 - Real-time rendering and camera controls (keyboard)
 - SFML-based windowing and input management
@@ -28,7 +30,7 @@ Before building, make sure the following are installed:
 ```cd 3D-Particle-Simulator```bash
 ```make```bash
 
-The executable will  be place in `bin/main.exe`. DLLs will be copied automatically
+The executable will be placed in `/bin/`. DLLs will be copied automatically
 
 ### Option 2: SFML installed, but compiled without make
 ```g++ -std=c++17 -Wall -Iinclude -Iglm src/*.cpp src/gl.c -o bin/main.exe \ -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32```
