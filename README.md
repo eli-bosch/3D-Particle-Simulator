@@ -20,8 +20,7 @@ Before building, make sure the following are installed:
 
 ### Libraries
 - **[SFML 2.6.1](https://www.sfml-dev.org/)** (installed via MSYS2)
-  ```bash
-  pacman -S mingw-w64-x86_64-sfml
+   ```pacman -S mingw-w64-x86_64-sfml```bash
 
 ## Build Instructions
 ### Option 1: Using Makefile without make or SFML installed (MYSYS2 / MinGW64)
