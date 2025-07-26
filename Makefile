@@ -7,7 +7,7 @@ INCLUDE_DIRS := include glm
 # Compiler and flags
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall $(foreach dir,$(INCLUDE_DIRS),-I$(dir))
-LDFLAGS := -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32
+LDFLAGS := -L"C:/msys64/mingw64/lib" -lsfml-window -lsfml-system -lopengl32
 
 # Source and target
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp) $(SRC_DIR)/gl.c

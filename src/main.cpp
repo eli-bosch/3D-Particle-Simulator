@@ -1,8 +1,6 @@
 #include <SFML/Window.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <glad/gl.h>
 
@@ -143,7 +141,7 @@ int main() {
         particleUniforms.setFloat("fov", fov);
         particleUniforms.setFloat("height", (float)height);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to fill if needed
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); 
         particles.render(particleShader);
 
         // Display
