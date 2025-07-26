@@ -20,7 +20,7 @@ Before building, make sure the following are installed:
 
 ### Libraries
 - **[SFML 2.6.1](https://www.sfml-dev.org/)** (installed via MSYS2)
-```pacman -S mingw-w64-x86_64-sfml```bash
+```pacman -S mingw-w64-x86_64-sfml```
 
 ## Build Instructions
 ### Option 1: Using Makefile without make or SFML installed (MYSYS2 / MinGW64)
@@ -34,7 +34,7 @@ The executable will  be place in `bin/main.exe`. DLLs will be copied automatical
 ```g++ -std=c++17 -Wall -Iinclude -Iglm src/*.cpp src/gl.c -o bin/main.exe \ -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32```bash
 
 ## Run Instructions
-``` ./bin/main.exe ``` bash
+``` ./bin/main.exe ``` 
 
 ## Controls
 - `W/A/S/D` or arrow keys for movement
