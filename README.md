@@ -31,7 +31,7 @@ Before building, make sure the following are installed:
 The executable will  be place in `bin/main.exe`. DLLs will be copied automatically
 
 ### Option 2: SFML installed, but compiled without make
-```g++ -std=c++17 -Wall -Iinclude -Iglm src/*.cpp src/gl.c -o bin/main.exe \ -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32```bash
+```g++ -std=c++17 -Wall -Iinclude -Iglm src/*.cpp src/gl.c -o bin/main.exe \ -L"C:/msys64/mingw64/lib" -lsfml-graphics -lsfml-window -lsfml-system -lopengl32```
 
 ## Run Instructions
 ``` ./bin/main.exe ``` 
