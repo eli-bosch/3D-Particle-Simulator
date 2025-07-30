@@ -10,6 +10,7 @@ The simulator supports spatial partitioning and interactive camera controls for 
 - Simple collision handling and particle repulsion
 - Real-time rendering and camera controls (keyboard)
 - SFML-based windowing and input management
+  
 
 ## Requirements
 Before building, make sure the following are installed:
@@ -38,11 +39,25 @@ The executable will be placed in `/bin/`. DLLs will be copied automatically
 ## Run Instructions
 ``` ./bin/main.exe ``` 
 
+
+
 ## Controls
 - `W/A/S/D` or arrow keys for movement
 - `+/-` to zoom in/out
 
+## Performance Comparison
+
+Below is a benchmark comparing different implementations of the particle simulator
+
+- **CPU with no spatial partitioning**
+- **CPU with spatial partitioning**
+- **GPU with no spatial partitioning**
+- **GPU with spatial partitioning (current)**
+
+![Performance Graph](images/performance_graph.png)
+
 ## Notes
 - Requires an OpenGL 4.6+ capable GPU
+- Currently optimized for high particle count (100,000+)
 - Make sure `glad` or your OpenGL loader is initialized correctly
 - Particle logic is performed entirely on the GPU using compute shaders
